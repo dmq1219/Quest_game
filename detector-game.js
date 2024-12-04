@@ -24,10 +24,10 @@ const ctx = canvas.getContext('2d');
 const GROUND_Y = 250;
 const GRAVITY = 1.0;
 const JUMP_FORCE = -16;
-const INITIAL_SPEED = 7;
-const SPEED_INCREASE = 0.002;
-const MIN_GAP = 150;
-const MAX_EXTRA_GAP = 100;
+const INITIAL_SPEED = 9; // 增加初始速度
+const SPEED_INCREASE = 0.003; // 稍微增加速度增长
+const MIN_GAP = 100; // 减少物品间隔
+const MAX_EXTRA_GAP = 80; // 减少额外间隔
 
 // 游戏状态变量
 let score = 0;
@@ -106,7 +106,7 @@ class Item {
 
 let items = [];
 let spawnTimer = 0;
-let minSpawnTime = 100;
+let minSpawnTime = 80; // 减少生成间隔
 let currentSpawnTime = minSpawnTime;
 
 function resetSpawnTimer() {
@@ -122,7 +122,16 @@ function checkCollision(detector, item) {
             detector.y - collisionMargin < item.y - item.height);
 }
 
-function drawScoreAndLives() {
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+    
+    // 无论游戏是否结束都绘制分数和生命值
     ctx.fillStyle = 'black';
     ctx.font = '24px Arial';
     ctx.textAlign = 'right';
@@ -132,16 +141,6 @@ function drawScoreAndLives() {
     
     // 显示生命值
     ctx.fillText(`Lives: ${lives}`, canvas.width - 20, 80);
-}
-
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = '#87CEEB';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
     
     if (!gameOver) {
         detector.update();
@@ -186,9 +185,6 @@ function gameLoop() {
     }
     
     detector.draw();
-    
-    // 绘制分数和生命值
-    drawScoreAndLives();
     
     if (gameOver) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
