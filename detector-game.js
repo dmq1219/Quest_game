@@ -8,8 +8,13 @@ coinImg.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/coin.pn
 canImg.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/can.png';
 
 // 加载音频
-const coinSound = new Audio('https://raw.githubusercontent.com/dmq1219/Quest_game/main/coin.wav');
-const hitSound = new Audio('https://raw.githubusercontent.com/dmq1219/Quest_game/main/hit.wav');
+const coinSound = new Audio();
+coinSound.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/coin.wav';
+coinSound.preload = 'auto';
+
+const hitSound = new Audio();
+hitSound.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/hit.wav';
+hitSound.preload = 'auto';
 
 // 游戏主逻辑
 const canvas = document.getElementById('gameCanvas');
@@ -117,6 +122,18 @@ function checkCollision(detector, item) {
             detector.y - collisionMargin < item.y - item.height);
 }
 
+function drawScoreAndLives() {
+    ctx.fillStyle = 'black';
+    ctx.font = '24px Arial';
+    ctx.textAlign = 'right';
+    
+    // 显示分数
+    ctx.fillText(`Score: ${score}`, canvas.width - 20, 40);
+    
+    // 显示生命值
+    ctx.fillText(`Lives: ${lives}`, canvas.width - 20, 80);
+}
+
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -144,6 +161,10 @@ function gameLoop() {
             if (checkCollision(detector, item)) {
                 if (item.type === 'coin') {
                     score++;
+                    // 吃到金币可以加一条命，但不超过3条
+                    if (lives < 3) {
+                        lives++;
+                    }
                     coinSound.currentTime = 0;
                     coinSound.play();
                 } else {
@@ -166,6 +187,9 @@ function gameLoop() {
     
     detector.draw();
     
+    // 绘制分数和生命值
+    drawScoreAndLives();
+    
     if (gameOver) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -177,6 +201,9 @@ function gameLoop() {
         
         ctx.font = '24px Arial';
         ctx.fillText('Press Space to restart', canvas.width/2, canvas.height/2 + 50);
+        
+        // 游戏结束时显示最终分数
+        ctx.fillText(`Final Score: ${score}`, canvas.width/2, canvas.height/2 + 100);
     }
     
     requestAnimationFrame(gameLoop);
