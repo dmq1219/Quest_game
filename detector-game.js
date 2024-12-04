@@ -1,15 +1,19 @@
-// 游戏主逻辑
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-// 图片资源（稍后替换为Wix媒体库链接）
+// 加载图片
 const detectorImg = new Image();
 const coinImg = new Image();
 const canImg = new Image();
 
-detectorImg.src = 'detector.png';
-coinImg.src = 'coin.png';
-canImg.src = 'can.png';
+detectorImg.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/detector.png';
+coinImg.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/coin.png';
+canImg.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/can.png';
+
+// 加载音频
+const coinSound = new Audio('https://raw.githubusercontent.com/dmq1219/Quest_game/main/coin.wav');
+const hitSound = new Audio('https://raw.githubusercontent.com/dmq1219/Quest_game/main/hit.wav');
+
+// 游戏主逻辑
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
 // 游戏常量
 const GROUND_Y = 250;
@@ -140,8 +144,12 @@ function gameLoop() {
             if (checkCollision(detector, item)) {
                 if (item.type === 'coin') {
                     score++;
+                    coinSound.currentTime = 0;
+                    coinSound.play();
                 } else {
                     lives--;
+                    hitSound.currentTime = 0;
+                    hitSound.play();
                     if (lives <= 0) {
                         gameOver = true;
                     }
