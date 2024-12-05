@@ -252,26 +252,11 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// 触摸控制优化 - 分区触发
+// 触摸控制 - 简化版本
 canvas.addEventListener('touchstart', (event) => {
-    event.preventDefault();
-    const touch = event.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    const y = touch.clientY - rect.top;
-    
-    // 只有当触摸点在canvas下半部分时才跳跃
-    if (y > canvas.height / 2) {
-        handleJump();
-    }
+    event.preventDefault();  // 阻止默认行为
+    handleJump();  // 直接触发跳跃
 }, { passive: false });
 
-// 鼠标点击控制
-canvas.addEventListener('click', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const y = event.clientY - rect.top;
-    
-    // 只有当点击在canvas下半部分时才跳跃
-    if (y > canvas.height / 2) {
-        handleJump();
-    }
-});
+// 点击控制 - 简化版本
+canvas.addEventListener('click', handleJump);
