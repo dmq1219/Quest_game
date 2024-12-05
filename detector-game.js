@@ -1,3 +1,7 @@
+// 游戏主逻辑
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
 // 加载图片
 const detectorImg = new Image();
 const coinImg = new Image();
@@ -16,11 +20,8 @@ const hitSound = new Audio();
 hitSound.src = 'https://raw.githubusercontent.com/dmq1219/Quest_game/main/hit.wav';
 hitSound.preload = 'auto';
 
-// 游戏主逻辑
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
 // 游戏常量
+let GROUND_Y = 250;  // 现在是可变的，因为需要根据canvas高度调整
 const GRAVITY = 1.0;
 const JUMP_FORCE = -16;
 const INITIAL_SPEED = 9;
@@ -33,7 +34,6 @@ let score = 0;
 let lives = 3;
 let gameOver = false;
 let currentSpeed = INITIAL_SPEED;
-let GROUND_Y = 250;
 
 // 探测器对象
 const detector = {
@@ -228,7 +228,7 @@ Promise.all([
 // 监听窗口大小变化
 window.addEventListener('resize', resizeCanvas);
 
-// 监听跳跃事件
+// 处理跳跃和重启的函数
 function handleJump() {
     if (gameOver) {
         gameOver = false;
@@ -244,9 +244,6 @@ function handleJump() {
     }
 }
 
-// 获取跳跃按钮
-const jumpButton = document.getElementById('jumpButton');
-
 // 键盘控制
 document.addEventListener('keydown', (event) => {
     if (event.code === 'Space') {
@@ -255,20 +252,26 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// 为按钮添加事件监听
-if (jumpButton) {
-    jumpButton.addEventListener('touchstart', (event) => {
-        event.preventDefault();
-        handleJump();
-    }, { passive: false });
-
-    jumpButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        handleJump();
-    });
-}
-
-// 移除canvas的触摸事件，防止遮挡视线
+// 触摸控制优化 - 分区触发
 canvas.addEventListener('touchstart', (event) => {
     event.preventDefault();
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const y = touch.clientY - rect.top;
+    
+    // 只有当触摸点在canvas下半部分时才跳跃
+    if (y > canvas.height / 2) {
+        handleJump();
+    }
 }, { passive: false });
+
+// 鼠标点击控制
+canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const y = event.clientY - rect.top;
+    
+    // 只有当点击在canvas下半部分时才跳跃
+    if (y > canvas.height / 2) {
+        handleJump();
+    }
+});
