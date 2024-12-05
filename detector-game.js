@@ -20,14 +20,27 @@ hitSound.preload = 'auto';
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// 游戏常量
-const GROUND_Y = 250;
+// 响应式设置
+function resizeCanvas() {
+    const deviceWidth = window.innerWidth;
+    const deviceHeight = window.innerHeight;
+    
+    // 根据设备宽度调整canvas大小
+    canvas.width = Math.min(deviceWidth, 800);
+    canvas.height = Math.min(deviceHeight * 0.4, 300);
+    
+    // 重新调整地面高度
+    GROUND_Y = canvas.height * 0.8;
+}
+
+// 游戏常量（动态调整）
+let GROUND_Y = 250;
 const GRAVITY = 1.0;
 const JUMP_FORCE = -16;
-const INITIAL_SPEED = 9; // 增加初始速度
-const SPEED_INCREASE = 0.003; // 稍微增加速度增长
-const MIN_GAP = 100; // 减少物品间隔
-const MAX_EXTRA_GAP = 80; // 减少额外间隔
+const INITIAL_SPEED = 9;
+const SPEED_INCREASE = 0.003;
+const MIN_GAP = 100;
+const MAX_EXTRA_GAP = 80;
 
 // 游戏状态变量
 let score = 0;
@@ -106,7 +119,7 @@ class Item {
 
 let items = [];
 let spawnTimer = 0;
-let minSpawnTime = 80; // 减少生成间隔
+let minSpawnTime = 80;
 let currentSpawnTime = minSpawnTime;
 
 function resetSpawnTimer() {
@@ -160,7 +173,6 @@ function gameLoop() {
             if (checkCollision(detector, item)) {
                 if (item.type === 'coin') {
                     score++;
-                    // 吃到金币可以加一条命，但不超过3条
                     if (lives < 3) {
                         lives++;
                     }
@@ -196,9 +208,8 @@ function gameLoop() {
         ctx.fillText('Game Over!', canvas.width/2, canvas.height/2);
         
         ctx.font = '24px Arial';
-        ctx.fillText('Press Space to restart', canvas.width/2, canvas.height/2 + 50);
+        ctx.fillText('Tap/Press Space to restart', canvas.width/2, canvas.height/2 + 50);
         
-        // 游戏结束时显示最终分数
         ctx.fillText(`Final Score: ${score}`, canvas.width/2, canvas.height/2 + 100);
     }
     
@@ -211,24 +222,41 @@ Promise.all([
     new Promise(resolve => coinImg.onload = resolve),
     new Promise(resolve => canImg.onload = resolve)
 ]).then(() => {
+    resizeCanvas(); // 初始化响应式大小
     gameLoop();
 });
 
-// 键盘事件
+// 监听窗口大小变化
+window.addEventListener('resize', resizeCanvas);
+
+// 键盘和触摸事件
+function handleJump() {
+    if (gameOver) {
+        gameOver = false;
+        score = 0;
+        lives = 3;
+        currentSpeed = INITIAL_SPEED;
+        items = [];
+        detector.y = GROUND_Y;
+        detector.velocityY = 0;
+        detector.isJumping = false;
+    } else {
+        detector.jump();
+    }
+}
+
 document.addEventListener('keydown', (event) => {
     if (event.code === 'Space') {
         event.preventDefault();
-        if (gameOver) {
-            gameOver = false;
-            score = 0;
-            lives = 3;
-            currentSpeed = INITIAL_SPEED;
-            items = [];
-            detector.y = GROUND_Y;
-            detector.velocityY = 0;
-            detector.isJumping = false;
-        } else {
-            detector.jump();
-        }
+        handleJump();
     }
 });
+
+// 添加触摸事件支持
+canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault(); // 阻止默认触摸行为
+    handleJump();
+}, { passive: false });
+
+// 添加点击事件支持（对于鼠标和触摸板）
+canvas.addEventListener('click', handleJump);
