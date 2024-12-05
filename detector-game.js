@@ -244,6 +244,10 @@ function handleJump() {
     }
 }
 
+// 获取跳跃按钮
+const jumpButton = document.getElementById('jumpButton');
+
+// 键盘控制
 document.addEventListener('keydown', (event) => {
     if (event.code === 'Space') {
         event.preventDefault();
@@ -251,11 +255,20 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// 添加触摸事件支持
-canvas.addEventListener('touchstart', (event) => {
-    event.preventDefault(); // 阻止默认触摸行为
-    handleJump();
-}, { passive: false });
+// 为按钮添加事件监听
+if (jumpButton) {
+    jumpButton.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        handleJump();
+    }, { passive: false });
 
-// 添加点击事件支持（对于鼠标和触摸板）
-canvas.addEventListener('click', handleJump);
+    jumpButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        handleJump();
+    });
+}
+
+// 移除canvas的触摸事件，防止遮挡视线
+canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+}, { passive: false });
