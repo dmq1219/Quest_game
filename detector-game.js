@@ -20,21 +20,7 @@ hitSound.preload = 'auto';
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// 响应式设置
-function resizeCanvas() {
-    const deviceWidth = window.innerWidth;
-    const deviceHeight = window.innerHeight;
-    
-    // 根据设备宽度调整canvas大小
-    canvas.width = Math.min(deviceWidth, 800);
-    canvas.height = Math.min(deviceHeight * 0.4, 300);
-    
-    // 重新调整地面高度
-    GROUND_Y = canvas.height * 0.8;
-}
-
-// 游戏常量（动态调整）
-let GROUND_Y = 250;
+// 游戏常量
 const GRAVITY = 1.0;
 const JUMP_FORCE = -16;
 const INITIAL_SPEED = 9;
@@ -47,6 +33,7 @@ let score = 0;
 let lives = 3;
 let gameOver = false;
 let currentSpeed = INITIAL_SPEED;
+let GROUND_Y = 250;
 
 // 探测器对象
 const detector = {
@@ -216,6 +203,18 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+// 响应式设置
+function resizeCanvas() {
+    const deviceWidth = window.innerWidth;
+    
+    // 固定canvas大小，但保持最大宽度为800
+    canvas.width = Math.min(deviceWidth * 0.95, 800);
+    canvas.height = 300;
+    
+    // 重新调整地面高度
+    GROUND_Y = canvas.height * 0.8;
+}
+
 // 图片加载完成后启动游戏
 Promise.all([
     new Promise(resolve => detectorImg.onload = resolve),
@@ -229,7 +228,7 @@ Promise.all([
 // 监听窗口大小变化
 window.addEventListener('resize', resizeCanvas);
 
-// 键盘和触摸事件
+// 监听跳跃事件
 function handleJump() {
     if (gameOver) {
         gameOver = false;
